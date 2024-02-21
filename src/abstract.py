@@ -26,18 +26,22 @@ class HhVacancyAPI(AbstractVacancyAPI):
         pass
 
     def get_vacancies(self):
-        # Implement logic to retrieve vacancies from the hh.ru API
         url = 'https://api.hh.ru/vacancies'
         params = {
             'text': 'Python Developer',
-            'from': 0,
-            'count': 10
+            'area': 1,
+            'only_with_salary': True,
+            'per_page': 10
         }
         response = requests.get(url, params=params)
-        vacancies = response.json()
-        return vacancies
+        if response.status_code == 200:
+            vacancies = response.json()
+            return vacancies['items']
+        else:
+            return []
 
     def get_vacancies_by_criteria(self, search_query):
+        # Implement logic to retrieve vacancies by criteria
         pass
 
 
@@ -96,8 +100,9 @@ class JSONSaver(AbstractVacancySaver):
         self.vacancies = [v for v in self.vacancies if v != vars(vacancy)]
 
     def save_to_json(self):
-        with open(self.filename, 'w') as file:
-            json.dump(self.vacancies, file, indent=4)
+        with open(self.filename, 'w', encoding='utf-8') as file:
+            json.dump(self.vacancies, file, ensure_ascii=False, indent=4)
+
 
 
 class JobSearchApp:
@@ -106,7 +111,7 @@ class JobSearchApp:
         self.api = HhVacancyAPI(api_key)
         self.saver = JSONSaver(json_filename)
 
-    def search_and_save_vacancies(self, search_query):
+    def search_and_save_vacancies(self, search_query, json_filename=None):
         self.api.connect()
         vacancies = self.api.get_vacancies()
         for vacancy in vacancies:
