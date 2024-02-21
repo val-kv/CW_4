@@ -1,7 +1,7 @@
 import json
-from abc import ABC, abstractmethod
-
 import requests
+
+from abc import ABC, abstractmethod
 
 
 class AbstractVacancyAPI(ABC):
@@ -108,9 +108,14 @@ class JobSearchApp:
 
     def search_and_save_vacancies(self, search_query):
         self.api.connect()
-        vacancies = self.api.get_vacancies(search_query)
+        vacancies = self.api.get_vacancies()
         for vacancy in vacancies:
-            self.saver.add_vacancy(vacancy)
+            title = vacancy['name']
+            url = f"https://hh.ru/vacancy/{vacancy['id']}"
+            salary = f"{vacancy['salary']['from']} - {vacancy['salary']['to']}"
+            snippet = vacancy['snippet']['requirement']
+            vacancy_dict = Vacancy(title, url, salary, snippet)
+            self.saver.add_vacancy(vacancy_dict)
         self.saver.save_to_json()
 
     def get_top_n_vacancies(self, n):
