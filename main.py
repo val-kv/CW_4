@@ -1,3 +1,4 @@
-from src.abstract import user_interaction
+from src.user import user_interaction
 
-user_interaction()
+if __name__ == "__main__":
+    user_interaction()
